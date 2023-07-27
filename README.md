@@ -23,6 +23,7 @@ As mentionned before, our partners have a number issues, and this one has its sh
 - it takes a long time to answer (up to 10s)
 - it is supposed to call you back through a webhook -- but sometimes it doesn't
 - it has a status check API -- but they explicitely said they could block our services if we request it too often
+- it will time out (HTTP 504) from time to time, but sometimes the request actually will go through after a longer time (up to 120s).
 
 ### Your constraints
 

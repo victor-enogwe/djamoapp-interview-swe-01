@@ -30,6 +30,8 @@ This applications exposes one endpoint, `/transaction`. It will return HTTP 200 
 }
 ```
 
+Roughly 10% of the time, this endpoint will time out and an HTTP 504 error will be returned. Half of these timed out requests will actually go through, after a while (30s to 120s).
+
 ### GET /transaction/:id
 
 You can retrieve the data of a specific transaction with this endpoint. If no transaction is matching that ID, an HTTP 404 error is returned.
