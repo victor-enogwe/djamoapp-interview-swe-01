@@ -16,6 +16,6 @@ You _need_ to update this README with instructions on how to use your program. T
 
 Sequence diagrams are encouraged to describe your chosen approach, other than that you are welcomed to document your code as you would have done under normal circumstances.
 
-### Dockerfile
+### Working solution
 
-Please provide a working Dockerfile to build and run your solution. You can also extend the docker-compose file that is at the root of this test's folder.
+⚠️ The whole stack needs to work with the command: `docker-compose up -d`. You are expected to update the Dockerfiles and the docker-compose file according to the requirements of your solution. For instance, if you need an SQL script to be ran against a database, it needs to be done automatically without human intervention.
