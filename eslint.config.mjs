@@ -31,7 +31,7 @@ const globalConfig = {
     'max-len': [
       'error',
       {
-        code: 80,
+        code: 120,
         ignorePattern: '^(import\\s.+\\sfrom\\s.+|\\} from)',
         ignoreTemplateLiterals: true,
         ignoreRegExpLiterals: true,
@@ -47,7 +47,7 @@ const globalConfig = {
 /** @type {import('eslint').Linter.Config} */
 const javascriptConfig = {
   name: 'javascript config',
-  files: ['**/*.js'],
+  files: ['client/**/*.js', 'thirdparty/**/*.js', 'your_api/**/*.js'],
   languageOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
@@ -68,7 +68,6 @@ const javascriptConfig = {
     'no-restricted-syntax': ['error', 'WithStatement'],
     'no-console': 'off',
     'consistent-return': 'off',
-    'max-len': ['error', { code: 120 }],
     'no-control-regex': 'warn',
     'no-extra-semi': 'warn',
     'no-redeclare': 'off',
@@ -105,7 +104,7 @@ const javascriptConfig = {
 /** @type {import('eslint').Linter.Config} */
 const typescriptConfig = {
   name: 'typescript config',
-  files: ['**/*.ts'],
+  files: ['client/**/*.ts', 'thirdparty/**/*.ts', 'your_api/**/*.ts'],
   languageOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
@@ -134,7 +133,7 @@ const typescriptConfig = {
     'no-undef': 'off',
     'no-console': 'error',
     'consistent-return': 'error',
-    'max-len': ['error', { code: 80 }],
+    'max-len': ['error', { ...globalConfig.rules['max-len'][1], code: 80 }],
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
