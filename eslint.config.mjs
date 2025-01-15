@@ -52,7 +52,6 @@ const javascriptConfig = {
     ecmaVersion: 'latest',
     sourceType: 'module',
     globals: {
-      ...globals.browser,
       ...globals.commonjs,
       ...globals.node,
       ...globals.jest,
@@ -136,6 +135,10 @@ const typescriptConfig = {
     'no-console': 'error',
     'consistent-return': 'error',
     'max-len': ['error', { code: 80 }],
+    '@typescript-eslint/interface-name-prefix': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-var-requires': 'error',
     '@typescript-eslint/explicit-function-return-type': 'error',
     '@typescript-eslint/explicit-module-boundary-types': 'error',
