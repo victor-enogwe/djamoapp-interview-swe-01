@@ -98,6 +98,9 @@ importers:
       '@bull-board/api':
         specifier: 6.6.2
         version: 6.6.2(@bull-board/ui@6.6.2)
+      '@bull-board/express':
+        specifier: 6.6.2
+        version: 6.6.2
       '@bull-board/fastify':
         specifier: 6.6.2
         version: 6.6.2

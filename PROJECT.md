@@ -42,3 +42,8 @@
 - Setup project linters and formatters
 - Initialize api project
 - Initialize Testing
+
+## Extra Considerations
+
+- Dead letter queue for unexpected reconciliation
+- Authenticate webhook url

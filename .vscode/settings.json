@@ -119,6 +119,7 @@
     "DEBUG": "",
     "TURBO_TELEMETRY_DISABLED": "1",
     "THIRD_PARTY_API_URL": "http://localhost:3000",
-    "CLIENT_API_URL": "http://localhost:3100"
+    "CLIENT_API_URL": "http://localhost:3100",
+    "YOUR_API": "http://localhost:3200"
   }
 }

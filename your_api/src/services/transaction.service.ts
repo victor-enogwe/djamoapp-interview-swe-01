@@ -11,15 +11,15 @@ export class TransactionService {
   ) {}
 
   async startTransaction(id: string): Promise<JobNode> {
+    const opts = { jobId: id };
+
+    const create = this.jobService.createTransaction({ id }, opts);
+    const process = this.jobService.processTransaction({ id }, opts);
+    const update = this.jobService.updateTransactionStatus({ id }, opts);
+
     const job = await this.bullmqService.addFlow({
-      ...this.jobService.processTransaction({ id }),
-      opts: { jobId: id },
-      children: [
-        {
-          ...this.jobService.createTransaction({ id }, { jobId: id }),
-          opts: { jobId: id },
-        },
-      ],
+      ...update,
+      children: [{ ...process, children: [create] }],
     });
 
     return job;

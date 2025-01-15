@@ -4,6 +4,7 @@ import { BullmqFlowJob } from '../../../@types/bullmq.module';
 import { Event } from '../../../enums/event.enum';
 import { CreateTransactionJobData } from '../lambdas/processors/create-transaction/types';
 import { ProcessTransactionJobData } from '../lambdas/processors/process-transaction/types';
+import { UpdateTransactionStatusJobData } from '../lambdas/processors/update-transaction-status/types';
 import { BullmqProducerService } from './bullmq-producer.service';
 
 @Injectable()
@@ -34,25 +35,20 @@ export class BullmqCreateJobService {
     });
   }
 
-  updateTransactionStatus(): BullmqFlowJob {
+  updateTransactionStatus(
+    data: UpdateTransactionStatusJobData,
+    opts?: BullmqFlowJob<UpdateTransactionStatusJobData>['opts'],
+  ): BullmqFlowJob {
     return this.bullmqProducerService.createFlowJob({
       name: this.bullmqProducerService.getJobName(
         Event.UPDATE_TRANSACTION_STATUS,
       ),
       queueName: Event.UPDATE_TRANSACTION_STATUS,
-      data: {},
-      opts: { jobId: '', failParentOnFailure: true },
-    });
-  }
-
-  transactionStatusNotification(): BullmqFlowJob {
-    return this.bullmqProducerService.createFlowJob({
-      name: this.bullmqProducerService.getJobName(
-        Event.TRANSACTION_STATUS_NOTIFICATION,
-      ),
-      queueName: Event.TRANSACTION_STATUS_NOTIFICATION,
-      data: {},
-      opts: { jobId: '', failParentOnFailure: true },
+      data,
+      opts: merge({ failParentOnFailure: true }, opts, {
+        backoff: (attempts: number) => (attempts === 0 ? 200 : 5000 * attempts),
+        attempts: Number.MAX_SAFE_INTEGER,
+      }),
     });
   }
 }

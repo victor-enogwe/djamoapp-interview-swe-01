@@ -27,4 +27,3 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       TURBO_TELEMETRY_DISABLED: 1
-      YOUR_API: ${YOUR_API}
