@@ -1,0 +1,31 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env", "**/.env.*local"],
+  "globalEnv": ["PORT", "NODE_ENV"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "check:types": {
+      "dependsOn": ["^check:types", "//#check:types:tsc"]
+    },
+    "check:deps": {
+      "dependsOn": ["^check:deps", "//#check:deps:root"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^check:deps"]
+    },
+    "test": {
+      "cache": false,
+      "persistent": false,
+      "inputs": ["*.spec.tsx?"],
+      "outputs": ["coverage/**"],
+      "dependsOn": ["^test"]
+    },
+    "//#check:types:tsc": {},
+    "//#check:deps:root": {}
+  }
+}
