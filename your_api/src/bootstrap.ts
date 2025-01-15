@@ -9,14 +9,17 @@ import { Logger } from 'nestjs-pino';
 import { AppModule } from './modules/app/app.module';
 
 export async function bootstrap(): Promise<NestFastifyApplication> {
+  const testMode = process.env['NODE_ENV'] === 'test';
+
   const fastifyApp = new FastifyAdapter({
     onProtoPoisoning: 'error',
     onConstructorPoisoning: 'error',
     requestIdHeader: false,
     ignoreTrailingSlash: true,
     ignoreDuplicateSlashes: true,
+    disableRequestLogging: testMode,
     logger: {
-      level: 'info',
+      level: testMode ? 'silent' : 'info',
       timestamp: true,
       name: 'http-request',
       transport: {

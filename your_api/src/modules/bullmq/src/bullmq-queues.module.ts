@@ -19,6 +19,7 @@ export class BullmqQueuesModule {
   static forRoot(options: BullmqQueuesModuleOptions): DynamicModule {
     return {
       module: BullmqQueuesModule,
+      global: true,
       imports: Event.values.map((name) =>
         BullModule.registerQueueAsync({
           name,

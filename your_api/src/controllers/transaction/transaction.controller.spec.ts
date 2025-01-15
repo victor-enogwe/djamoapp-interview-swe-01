@@ -1,5 +1,7 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
+import { randomUUID } from 'node:crypto';
+import { TransactionStatus } from '../../modules/enums/transaction-status.enum';
 import { TransactionService } from '../../services/transaction.service';
 import { TransactionController } from './transaction.controller';
 
@@ -9,7 +11,18 @@ describe('Transaction Controller: ', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [TransactionController],
-      providers: [TransactionService],
+      providers: [
+        {
+          provide: TransactionService,
+          useValue: {
+            startTransaction: jest.fn(async (id: string) =>
+              Promise.resolve({
+                job: { id },
+              }),
+            ),
+          },
+        },
+      ],
     }).compile();
 
     transactionController = app.get<TransactionController>(
@@ -18,8 +31,13 @@ describe('Transaction Controller: ', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(transactionController.getHello()).toBe('Hello World!');
+    it('should create a transaction"', async () => {
+      const id = randomUUID();
+      const transaction = await transactionController.createTransaction({ id });
+
+      expect(transaction).toEqual(
+        expect.objectContaining({ id, status: TransactionStatus.PENDING }),
+      );
     });
   });
 });

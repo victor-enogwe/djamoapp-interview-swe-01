@@ -37,7 +37,7 @@ export class BullmqQueueOptionsProvider implements RegisterQueueOptionsFactory {
   ) {}
 
   private async workerPath(): Promise<string | undefined> {
-    const processorDir = resolve(__dirname, '../', 'lambdas/src/processors');
+    const processorDir = resolve(__dirname, '../', 'lambdas/processors');
     const handler = join(processorDir, this.workerFolder, 'index');
     const jsPath = `${handler}.js`;
     const tsPath = `${handler}.ts`;

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConditionalModule, ConfigModule } from '@nestjs/config';
 import { TransactionController } from '../../controllers/transaction/transaction.controller';
 import { TransactionService } from '../../services/transaction.service';
 import { BullboardModule } from '../bullmq/src/bullboard.module';
@@ -15,7 +15,10 @@ import { RedisModule } from '../redis/src/redis.module';
     RedisModule,
     BullmqProducerModule,
     BullmqConsumerModule,
-    BullboardModule,
+    ConditionalModule.registerWhen(
+      BullboardModule,
+      ({ NODE_ENV }) => NODE_ENV !== 'test',
+    ),
   ],
   controllers: [TransactionController],
   providers: [TransactionService],
