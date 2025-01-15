@@ -1,5 +1,5 @@
-const express = require("express");
-const axios = require("axios");
+const express = require('express');
+const axios = require('axios');
 
 const app = express();
 app.use(express.json());
@@ -21,26 +21,26 @@ const sendWebhook = (id) => {
     .catch(() => console.log(`Could not post webhook for ${id}`));
 };
 
-app.post("/transaction", (req, res) => {
-  console.log("Received request", req.body);
-  const status = Math.random() > 1 / 3 ? "completed" : "declined";
+app.post('/transaction', (req, res) => {
+  console.log('Received request', req.body);
+  const status = Math.random() > 1 / 3 ? 'completed' : 'declined';
   const { id, webhookUrl } = req.body;
 
   // 10% of the time, will timeout. Half of the time, the transaction is actually processed.
   const shouldTimeout = Math.random() < 1 / 10;
   if (shouldTimeout) {
-    console.log("Will timeout");
+    console.log('Will timeout');
     const shouldWork = Math.random() > 1 / 2;
     if (shouldWork) {
       simulateLatency(getTimeoutLag()).then(() => {
         transactions[id] = { id, status, webhookUrl };
       });
     }
-    return simulateLatency(30_000).then(() => res.status(504).send("Timeout"));
+    return simulateLatency(30_000).then(() => res.status(504).send('Timeout'));
   }
 
   // Persist the transaction in memory
-  transactions[id] = { id, status: "pending", webhookUrl };
+  transactions[id] = { id, status: 'pending', webhookUrl };
 
   // Schedule webhook, for 80% of the cases
   const shouldSendWebhook = Math.random() > 1 / 5;
@@ -55,7 +55,7 @@ app.post("/transaction", (req, res) => {
   });
 });
 
-app.get("/transaction/:id", (req, res) => {
+app.get('/transaction/:id', (req, res) => {
   const transaction = transactions[req.params.id];
   if (transaction === undefined) {
     res.status(404).send();

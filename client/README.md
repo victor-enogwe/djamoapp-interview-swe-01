@@ -6,13 +6,13 @@ Application that mocks the behaviour of a client's mobile application.
 
 Either you have nodejs on your machine, and you can run it with this command:
 
-```
+```env
 PORT=<SOME_PORT> YOUR_API=<URL_OF_YOUR_API> npm run start
 ```
 
 Or you can start it with Docker:
 
-```
+```env
 docker build . -t djamo/client
 docker run -p "<SOME_PORT>:3000" -e YOUR_API=<URL_OF_YOUR_API> --rm djamo/client
 ```

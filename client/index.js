@@ -1,14 +1,14 @@
-const express = require("express");
-const axios = require("axios");
-const { randomUUID } = require("crypto");
+const express = require('express');
+const axios = require('axios');
+const { randomUUID } = require('crypto');
 
 const app = express();
 app.use(express.json());
 
 const port = process.env.PORT || 3100;
-const yourApiUrl = process.env.YOUR_API || "http://localhost:3200";
+const yourApiUrl = process.env.YOUR_API || 'http://localhost:3200';
 
-app.post("/transaction", (_, res) => {
+app.post('/transaction', (_, res) => {
   const body = { id: randomUUID() };
   console.log(`Request transaction creation with id = ${body.id}`);
   axios
@@ -17,11 +17,11 @@ app.post("/transaction", (_, res) => {
       const { id, status } = yourResponse.data;
       console.log(`Transaction ${id} is ${status}`);
     })
-    .catch((e) => console.log("Error while calling your api", e));
+    .catch((e) => console.log('Error while calling your api', e));
   res.send();
 });
 
-app.put("/transaction", (req, res) => {
+app.put('/transaction', (req, res) => {
   const { id, status } = req.body.status;
   console.log(`Transaction ${id} marked as ${status}`);
   res.send();

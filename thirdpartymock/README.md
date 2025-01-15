@@ -6,13 +6,13 @@ Application that mocks the behavior of a 3rd party service.
 
 Either you have nodejs on your machine, and you can run it with this command:
 
-```
+```env
 PORT=<SOME_PORT> npm run start
 ```
 
 Or you can start it with Docker:
 
-```
+```env
 docker build . -t djamo/3rdparty
 docker run -p "<SOME_PORT>:3000" --rm djamo/3rdparty
 ```
