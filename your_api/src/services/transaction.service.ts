@@ -12,7 +12,14 @@ export class TransactionService {
 
   async startTransaction(id: string): Promise<JobNode> {
     const job = await this.bullmqService.addFlow({
-      ...this.jobService.createTransaction({ id }, { jobId: id }),
+      ...this.jobService.processTransaction({ id }),
+      opts: { jobId: id },
+      children: [
+        {
+          ...this.jobService.createTransaction({ id }, { jobId: id }),
+          opts: { jobId: id },
+        },
+      ],
     });
 
     return job;

@@ -21,7 +21,7 @@ export class BullmqProducerService implements OnApplicationShutdown {
   constructor(
     @InjectFlowProducer(BULL_FLOW_PRODUCER)
     private readonly flowProducer: FlowProducer,
-    readonly defaultJobOptions: Partial<BullmqDefaultJobOptionsOptionsProvider>,
+    readonly defaultJobOptions: BullmqDefaultJobOptionsOptionsProvider,
   ) {}
 
   async onApplicationShutdown(): Promise<void> {

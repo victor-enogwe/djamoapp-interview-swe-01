@@ -13,6 +13,12 @@ export function redisOptionsFactory(
   const username = configService.get<string>('REDIS_USERNAME');
   const password = configService.get<string>('REDIS_PASSWORD');
   const sentinels = configService.get<SentinelAddress[]>('REDIS_SENTINELS');
+  const env = configService.get<string>('NODE_ENV');
+
+  const testMode = env === 'test';
+
+  const retryStrategy = (times: number): number =>
+    testMode ? 0 : Math.max(Math.min(Math.exp(times), 20000), 1000);
 
   return {
     host,
@@ -26,9 +32,10 @@ export function redisOptionsFactory(
     role: 'master',
     sentinelPassword: password,
     showFriendlyErrorStack: true,
-    enableOfflineQueue: true,
+    enableOfflineQueue: !testMode,
     enableAutoPipelining: true,
-    retryStrategy: (times) => Math.max(Math.min(Math.exp(times), 20000), 1000),
+    reconnectOnError: () => !testMode,
+    retryStrategy,
     sentinelRetryStrategy: (times) =>
       Math.max(Math.min(Math.exp(times), 20000), 1000),
   };

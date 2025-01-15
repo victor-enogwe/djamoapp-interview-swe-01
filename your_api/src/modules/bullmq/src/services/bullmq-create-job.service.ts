@@ -3,6 +3,7 @@ import { merge } from 'lodash';
 import { BullmqFlowJob } from '../../../@types/bullmq.module';
 import { Event } from '../../../enums/event.enum';
 import { CreateTransactionJobData } from '../lambdas/processors/create-transaction/types';
+import { ProcessTransactionJobData } from '../lambdas/processors/process-transaction/types';
 import { BullmqProducerService } from './bullmq-producer.service';
 
 @Injectable()
@@ -21,12 +22,15 @@ export class BullmqCreateJobService {
     });
   }
 
-  processTransaction(): BullmqFlowJob {
+  processTransaction(
+    data: ProcessTransactionJobData,
+    opts?: BullmqFlowJob<ProcessTransactionJobData>['opts'],
+  ): BullmqFlowJob {
     return this.bullmqProducerService.createFlowJob({
       name: this.bullmqProducerService.getJobName(Event.PROCESS_TRANSACTION),
       queueName: Event.PROCESS_TRANSACTION,
-      data: {},
-      opts: { jobId: '', failParentOnFailure: true },
+      data,
+      opts: merge({ failParentOnFailure: true }, opts),
     });
   }
 
