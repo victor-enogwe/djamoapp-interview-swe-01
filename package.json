@@ -1,0 +1,90 @@
+{
+  "name": "interview-swe-01",
+  "version": "0.1.0",
+  "description": "",
+  "scripts": {
+    "build": "turbo run build --continue",
+    "check:deps": "turbo run check:deps --continue",
+    "check:deps:root": "depcheck --quiet",
+    "check:types": "turbo run check:types --continue",
+    "check:types:tsc": "tsc --noEmit",
+    "dev": "turbo run dev --continue",
+    "docker:compose:down": "docker-compose -f docker-compose.yml --env-file .env.local down",
+    "docker:compose:up": "docker-compose -f docker-compose.yml --project-name djamo --env-file .env.local up -d --force-recreate --build --remove-orphans",
+    "format": "prettier --log-level error --write --ignore-unknown --cache-location node_modules/.cache .",
+    "lint": "eslint --cache --cache-location node_modules/.cache --fix .",
+    "prepare": "simple-git-hooks",
+    "tsc": "tsc",
+    "use": "pnpm --filter"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "commitlint": {
+    "extends": ["@commitlint/config-conventional"],
+    "rules": {
+      "type-enum": [
+        2,
+        "always",
+        [
+          "feat",
+          "fix",
+          "docs",
+          "chore",
+          "style",
+          "refactor",
+          "ci",
+          "test",
+          "perf",
+          "revert"
+        ]
+      ]
+    }
+  },
+  "engines": {
+    "node": "v20.16.0",
+    "npm": "10.5.1",
+    "pnpm": "9.15.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "depcheck": {
+    "ignoreBinPackage": false,
+    "ignores": [
+      "@commitlint/cli",
+      "@commitlint/config-conventional",
+      "@types/node",
+      "nano-staged",
+      "typescript"
+    ],
+    "ignorePatterns": ["dist", "coverage"]
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm nano-staged",
+    "pre-push": "pnpm format",
+    "commit-msg": "pnpm commitlint --edit ${1}",
+    "preserveUnused": false
+  },
+  "type": "module",
+  "devDependencies": {
+    "@commitlint/cli": "19.3.0",
+    "@commitlint/config-conventional": "19.2.2",
+    "@eslint/compat": "1.2.3",
+    "@eslint/js": "9.15.0",
+    "@eslint/markdown": "6.2.1",
+    "@types/node": "22.10.5",
+    "@typescript-eslint/eslint-plugin": "8.15.0",
+    "depcheck": "1.4.7",
+    "eslint": "9.15.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-import": "2.31.0",
+    "eslint-plugin-json": "4.0.1",
+    "eslint-plugin-prettier": "5.2.1",
+    "globals": "15.13.0",
+    "nano-staged": "0.8.0",
+    "prettier": "3.4.2",
+    "simple-git-hooks": "2.11.1",
+    "turbo": "2.3.3",
+    "typescript": "5.5.4",
+    "typescript-eslint": "8.15.0"
+  }
+}
