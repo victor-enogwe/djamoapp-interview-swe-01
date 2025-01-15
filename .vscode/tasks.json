@@ -1,0 +1,85 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "use projects node version",
+      "command": "nvm use $(node -e 'console.log(require(\"./package.json\").engines.node.replace(/[^0-9.]/g, \"\"))')",
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "isBackground": false,
+      "presentation": {
+        "reveal": "always",
+        "revealProblems": "onProblem",
+        "group": "start",
+        "showReuseMessage": false,
+        "panel": "shared",
+        "clear": true,
+        "focus": true
+      }
+    },
+    {
+      "label": "install dependencies",
+      "dependsOn": ["use projects node version"],
+      "command": "pnpm",
+      "args": ["i"],
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "isBackground": false,
+      "presentation": {
+        "reveal": "always",
+        "revealProblems": "onProblem",
+        "group": "start",
+        "showReuseMessage": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "check unused dependencies",
+      "dependsOn": ["install dependencies"],
+      "command": "pnpm",
+      "args": ["check:deps"],
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "isBackground": false,
+      "presentation": {
+        "reveal": "always",
+        "revealProblems": "onProblem",
+        "group": "start",
+        "showReuseMessage": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "build projects",
+      "dependsOn": ["check unused dependencies"],
+      "command": "pnpm",
+      "args": ["build"],
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "isBackground": false,
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "presentation": {
+        "reveal": "always",
+        "revealProblems": "onProblem",
+        "group": "start",
+        "close": true,
+        "showReuseMessage": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}
