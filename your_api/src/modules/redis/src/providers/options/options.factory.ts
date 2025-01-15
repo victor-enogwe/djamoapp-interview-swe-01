@@ -19,7 +19,7 @@ export function redisOptionsFactory(
     port,
     username,
     password,
-    db: 0,
+    db: 8,
     sentinels,
     connectionName,
     lazyConnect: true,

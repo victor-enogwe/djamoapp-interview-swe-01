@@ -91,5 +91,11 @@
     "turbo": "2.3.3",
     "typescript": "5.5.4",
     "typescript-eslint": "8.15.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@fastify/static": "7.0.4",
+      "@fastify/view": "9.1.0"
+    }
   }
 }
