@@ -1,13 +1,30 @@
-version: '3.8'
 services:
   thirdparty:
+    container_name: thirdparty
     build: ./thirdpartymock
+    hostname: thirdparty
+    restart: unless-stopped
     ports:
       - '3000:3000'
 
   client:
+    container_name: client
     build: ./client
-    environment:
-      YOUR_API: 'http://thirdparty:3000' # replace with your new API
+    hostname: client
+    restart: unless-stopped
     ports:
       - '3100:3100'
+    environment:
+      YOUR_API: ${YOUR_API}
+
+  your_api:
+    container_name: your_api
+    build: ./your_api
+    hostname: your_api
+    restart: unless-stopped
+    ports:
+      - '3200:3200'
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      TURBO_TELEMETRY_DISABLED: 1
+      YOUR_API: ${YOUR_API}
