@@ -1,21 +1,20 @@
 import { Module } from '@nestjs/common';
-import { ConditionalModule, ConfigModule } from '@nestjs/config';
+import { ConditionalModule } from '@nestjs/config';
 import { TransactionController } from '../../controllers/transaction/transaction.controller';
 import { WebhookController } from '../../controllers/webhook/webhook.controller';
 import { TransactionService } from '../../services/transaction.service';
 import { BullboardModule } from '../bullmq/src/bullboard.module';
-import { BullmqConsumerModule } from '../bullmq/src/bullmq-consumer.module';
 import { BullmqProducerModule } from '../bullmq/src/bullmq-producer.module';
+import { ConfigModule } from '../config/config.module';
 import { LoggerModule } from '../logger/logger.module';
 import { RedisModule } from '../redis/src/redis.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ cache: true, isGlobal: true }),
+    ConfigModule,
     LoggerModule,
     RedisModule,
     BullmqProducerModule,
-    BullmqConsumerModule,
     ConditionalModule.registerWhen(
       BullboardModule,
       ({ NODE_ENV }) => NODE_ENV !== 'test',
@@ -24,4 +23,4 @@ import { RedisModule } from '../redis/src/redis.module';
   controllers: [TransactionController, WebhookController],
   providers: [TransactionService],
 })
-export class AppModule {}
+export class ProducerModule {}

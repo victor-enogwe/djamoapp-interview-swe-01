@@ -1,14 +1,29 @@
 import compression from '@fastify/compress';
+import type { INestMicroservice } from '@nestjs/common';
 import { ShutdownSignal } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { Transport, type MicroserviceOptions } from '@nestjs/microservices';
 import {
   FastifyAdapter,
   type NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { randomUUID } from 'crypto';
 import { Logger } from 'nestjs-pino';
-import { AppModule } from './modules/app/app.module';
+import { ConsumerModule } from './modules/consumer/consumer.module';
+import { logger } from './modules/logger/providers/logger';
+import { ProducerModule } from './modules/producer/producer.module';
 
-export async function bootstrap(): Promise<NestFastifyApplication> {
+const shutdownHooks: ShutdownSignal[] = [
+  ShutdownSignal.SIGTERM,
+  ShutdownSignal.SIGINT,
+  ShutdownSignal.SIGHUP,
+  ShutdownSignal.SIGQUIT,
+  ShutdownSignal.SIGQUIT,
+  ShutdownSignal.SIGABRT,
+];
+
+export async function bootstrapProducer(): Promise<NestFastifyApplication> {
   const testMode = process.env['NODE_ENV'] === 'test';
 
   const fastifyApp = new FastifyAdapter({
@@ -18,6 +33,7 @@ export async function bootstrap(): Promise<NestFastifyApplication> {
     ignoreTrailingSlash: true,
     ignoreDuplicateSlashes: true,
     disableRequestLogging: testMode,
+    genReqId: (): string => randomUUID(),
     logger: {
       level: testMode ? 'silent' : 'info',
       timestamp: true,
@@ -30,7 +46,7 @@ export async function bootstrap(): Promise<NestFastifyApplication> {
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
+    ProducerModule,
     fastifyApp,
     {
       bufferLogs: true,
@@ -43,17 +59,14 @@ export async function bootstrap(): Promise<NestFastifyApplication> {
 
   app.useLogger(app.get(Logger));
 
-  app.enableShutdownHooks([
-    ShutdownSignal.SIGTERM,
-    ShutdownSignal.SIGINT,
-    ShutdownSignal.SIGHUP,
-    ShutdownSignal.SIGQUIT,
-    ShutdownSignal.SIGQUIT,
-    ShutdownSignal.SIGABRT,
-  ]);
+  app.enableShutdownHooks(shutdownHooks);
+
+  const configService = app.get(ConfigService);
+  const origins = configService.get<string>('CORS_ORIGINS') ?? '';
+  const origin = origins.split(',');
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost3100'],
+    origin,
     allowedHeaders: ['content-type'],
     methods: ['GET', 'POST'],
     exposedHeaders: [],
@@ -61,6 +74,23 @@ export async function bootstrap(): Promise<NestFastifyApplication> {
   });
 
   await app.register(compression, { encodings: ['gzip', 'deflate'] });
+
+  return app;
+}
+
+export async function bootstrapConsumer(): Promise<INestMicroservice> {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    ConsumerModule,
+    {
+      transport: Transport.REDIS,
+      options: { lazyConnect: true },
+      bufferLogs: true,
+      abortOnError: false,
+      logger,
+    },
+  );
+
+  app.enableShutdownHooks(shutdownHooks);
 
   return app;
 }

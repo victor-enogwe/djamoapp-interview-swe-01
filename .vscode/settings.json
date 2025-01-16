@@ -22,9 +22,12 @@
     "eslintcache",
     "flushall",
     "mdel",
+    "ossp",
     "rdparty",
     "thirdparty",
-    "thirdpartymock"
+    "thirdpartymock",
+    "timestamptz",
+    "typeorm"
   ],
   "debug.javascript.terminalOptions": {
     "skipFiles": ["<node_internals>/**", "**/$KNOWN_TOOLS$/**"]
@@ -62,7 +65,7 @@
   "editor.trimAutoWhitespace": true,
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "package.json": "pnpm-workspace.yaml, pnpm-lock.yaml, package-lock.json, README.md, PROJECT.md, .gitignore, .prettierignore, .npmrc, .nvmrc, tsconfig.json, nest-cli.json, prettier.config.*js, .eslintrc.*js, eslint.config.*js, .nano-staged.*js, .editorconfig, .eslintcache, .eslintignore, tsconfig.*, .eslintrc.json, .dockerignore, jest*.json, .continuerc.json, vite.config.*ts, Dockerfile, docker-compose.yml, .turbo, turbo.json"
+    "package.json": "pnpm-workspace.yaml, pnpm-lock.yaml, package-lock.json, README.md, PROJECT.md, .gitignore, .prettierignore, .npmrc, .nvmrc, tsconfig.json, nest-cli.json, prettier.config.*js, .eslintrc.*js, eslint.config.*js, .nano-staged.*js, .editorconfig, .eslintcache, .eslintignore, tsconfig.*, .eslintrc.json, .dockerignore, jest*.json, .continuerc.json, vite.config.*ts, Dockerfile*, docker-compose.yml, .turbo, turbo.json"
   },
   "files.associations": {
     "turbo.json": "jsonc"
@@ -115,11 +118,8 @@
   "terminal.explorerKind": "external",
   "terminal.integrated.env.osx": {
     "NODE_ENV": "development",
-    "YOUR_API_PORT": "3300",
     "DEBUG": "",
-    "TURBO_TELEMETRY_DISABLED": "1",
-    "THIRD_PARTY_API_URL": "http://localhost:3000",
-    "CLIENT_API_URL": "http://localhost:3100",
-    "YOUR_API": "http://localhost:3200"
+    "DB_NAME": "djamo",
+    "TURBO_TELEMETRY_DISABLED": "1"
   }
 }
