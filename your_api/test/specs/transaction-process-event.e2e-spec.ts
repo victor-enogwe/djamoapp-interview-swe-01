@@ -12,7 +12,7 @@ import { ProducerModule } from '../../src/modules/producer/producer.module';
 import { TransactionDriver } from '../drivers/transaction.driver';
 import { tickUntil } from '../utils';
 
-describe.skip('Transaction Process Event (e2e)', () => {
+describe('Transaction Process Event (e2e)', () => {
   let app: INestApplication<App>;
   let transactionDriver: TransactionDriver;
   let transactionRepository: Repository<TransactionEntity>;
@@ -54,6 +54,7 @@ describe.skip('Transaction Process Event (e2e)', () => {
       expect.objectContaining({
         id,
         status: expect.stringMatching(new RegExp(status.join('|'))) as unknown,
+        updatedAt: expect.any(Date) as unknown,
       }),
     );
   });

@@ -11,7 +11,7 @@ import { ProducerModule } from '../../src/modules/producer/producer.module';
 import { TransactionDriver } from '../drivers/transaction.driver';
 import { tickUntil } from '../utils';
 
-describe.skip('Transaction Create Event (e2e)', () => {
+describe('Transaction Create Event (e2e)', () => {
   let app: INestApplication<App>;
   let transactionDriver: TransactionDriver;
   let transactionRepository: Repository<TransactionEntity>;

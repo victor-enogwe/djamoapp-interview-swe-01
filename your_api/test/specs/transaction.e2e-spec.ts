@@ -7,10 +7,9 @@ import { BullmqQueueService } from '../../src/modules/bullmq/src/services/bullmq
 import { Event } from '../../src/modules/enums/event.enum';
 import { TransactionStatus } from '../../src/modules/enums/transaction-status.enum';
 import { ProducerModule } from '../../src/modules/producer/producer.module';
-import { AppDriver } from '../drivers/app.driver';
 import { TransactionDriver } from '../drivers/transaction.driver';
 
-describe.skip('Transaction Controller (e2e)', () => {
+describe('Transaction Controller (e2e)', () => {
   let app: NestFastifyApplication;
   let transactionDriver: TransactionDriver;
   let queueService: BullmqQueueService;
@@ -20,8 +19,7 @@ describe.skip('Transaction Controller (e2e)', () => {
       imports: [ProducerModule],
     }).compile();
 
-    const appDriver = new AppDriver(moduleFixture);
-    app = await appDriver.createNestApplication();
+    app = moduleFixture.createNestApplication();
     transactionDriver = new TransactionDriver(app);
     queueService = app.get<BullmqQueueService>(BullmqQueueService);
 

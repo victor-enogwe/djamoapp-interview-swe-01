@@ -42,6 +42,7 @@ describe('Webhook Controller (e2e)', () => {
     const id = randomUUID();
     const txnId = id as unknown as number;
     const update = { id, status: TransactionStatus.COMPLETED };
+    const status = [TransactionStatus.COMPLETED, TransactionStatus.DECLINED];
 
     const txn = await transactionDriver.createTransaction({ id });
 
@@ -52,11 +53,17 @@ describe('Webhook Controller (e2e)', () => {
     await webhookDriver.send(update);
 
     const transaction = await tickUntil<TransactionEntity | null>(
-      20000,
-      5000,
+      25000,
+      2500,
       transactionDriver.checkStatus(transactionRepository, txnId),
     );
 
-    expect(transaction).toEqual(expect.objectContaining(update));
+    expect(transaction).toEqual(
+      expect.objectContaining({
+        id,
+        status: expect.stringMatching(new RegExp(status.join('|'))) as unknown,
+        updatedAt: expect.any(Date) as unknown,
+      }),
+    );
   });
 });

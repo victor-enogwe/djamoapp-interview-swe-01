@@ -13,9 +13,6 @@ import {
   throwError,
 } from 'rxjs';
 
-export const sleep = (ms: number): Promise<void> =>
-  new Promise((res) => setTimeout(res, ms));
-
 export function tickUntil<T = unknown>(
   waitMs: number,
   everyMs: number,
