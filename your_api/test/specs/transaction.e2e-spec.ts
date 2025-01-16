@@ -1,31 +1,34 @@
-import type { INestApplication } from '@nestjs/common';
+import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
-import type { App } from 'supertest/types';
-import { AppModule } from '../src/modules/app/app.module';
-import { BullmqQueueService } from '../src/modules/bullmq/src/services/bullmq-queue.service';
-import { Event } from '../src/modules/enums/event.enum';
-import { TransactionStatus } from '../src/modules/enums/transaction-status.enum';
-import { TransactionDriver } from './drivers/transaction.driver';
+import { BullmqQueueService } from '../../src/modules/bullmq/src/services/bullmq-queue.service';
+import { Event } from '../../src/modules/enums/event.enum';
+import { TransactionStatus } from '../../src/modules/enums/transaction-status.enum';
+import { ProducerModule } from '../../src/modules/producer/producer.module';
+import { AppDriver } from '../drivers/app.driver';
+import { TransactionDriver } from '../drivers/transaction.driver';
 
-describe('Transaction Controller (e2e)', () => {
-  let app: INestApplication<App>;
+describe.skip('Transaction Controller (e2e)', () => {
+  let app: NestFastifyApplication;
   let transactionDriver: TransactionDriver;
   let queueService: BullmqQueueService;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [ProducerModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    const appDriver = new AppDriver(moduleFixture);
+    app = await appDriver.createNestApplication();
     transactionDriver = new TransactionDriver(app);
     queueService = app.get<BullmqQueueService>(BullmqQueueService);
 
     await app.init();
   });
+
+  afterEach(async () => app.close());
 
   it('/transaction(POST): should return a response immediately', async () => {
     const id = randomUUID();

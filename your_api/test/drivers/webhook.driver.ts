@@ -12,6 +12,6 @@ export class WebhookDriver {
     id: string;
     status: TransactionStatus;
   }): Promise<Omit<request.Response, 'body'> & { body: undefined }> {
-    return request(this.server).post('/webhook').send(data).expect(200);
+    return request(this.server).post('/webhook').send(data).expect(204);
   }
 }
