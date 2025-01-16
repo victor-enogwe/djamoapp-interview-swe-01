@@ -44,7 +44,7 @@ RUN adduser --system --uid 1001 nestjs
 
 COPY --chown=nestjs:nodejs *.json .
 
-COPY --chown=nestjs:nodejs src .
+COPY --chown=nestjs:nodejs src ./src
 
 RUN pnpm i
 
@@ -54,10 +54,12 @@ RUN pnpm build
 
 RUN pnpm i --frozen-lockfile --prod --ignore-scripts;
 
+RUN rm -rf src
+
 USER nestjs
 
 EXPOSE ${PORT}
 
 ENV PORT ${PORT}
 
-CMD HOSTNAME="0.0.0.0" node dist/main.js
+CMD HOSTNAME="0.0.0.0" node dist/producer.js
