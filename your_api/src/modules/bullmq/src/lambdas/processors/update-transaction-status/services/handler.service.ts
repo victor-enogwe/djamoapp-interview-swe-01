@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UnrecoverableError } from 'bullmq';
+import { get } from 'lodash';
 import { lastValueFrom } from 'rxjs';
 import { DataSource } from 'typeorm';
 import type { BullmqSandboxedJob } from '../../../../../../@types/bullmq.module';
@@ -77,13 +78,11 @@ export class HandlerService extends Handler<
       { status: status!.status, updatedAt: new Date() },
     );
 
-    this.logger.log(`Transaction ${JSON.stringify(result)}`);
+    if (get(result, 'affected', 0) < 1) {
+      throw new Error('Transaction update failed');
+    }
 
-    const update = this.httpService.put(postUrl, {
-      status: result.generatedMaps[0]['status'] as TransactionStatus,
-    });
-
-    await lastValueFrom(update);
+    await lastValueFrom(this.httpService.put(postUrl, { status }));
 
     return status as UpdateTransactionStatusJobReturnValue;
   }

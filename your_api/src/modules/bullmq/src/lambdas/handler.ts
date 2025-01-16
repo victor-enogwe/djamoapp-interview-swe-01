@@ -43,7 +43,9 @@ export abstract class Handler<T extends object, R, DTO extends object>
 
       return result;
     } catch (error) {
-      this.logger.error(error);
+      const err = error as Error;
+
+      this.logger.error({ message: err.message, stack: err.stack });
 
       throw error;
     }

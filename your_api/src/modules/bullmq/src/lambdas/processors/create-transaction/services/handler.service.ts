@@ -56,7 +56,7 @@ export class HandlerService extends Handler<
     const newTransaction = await this.transactionRepository.insert({ id });
 
     return Promise.resolve({
-      id: newTransaction.identifiers[0]['id'] as unknown as string,
+      id: get(newTransaction, 'identifiers.0.id') as unknown as string,
       status: get(
         newTransaction,
         'generatedMaps.0.status',
