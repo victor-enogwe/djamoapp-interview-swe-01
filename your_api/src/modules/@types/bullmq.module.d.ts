@@ -9,17 +9,13 @@ export interface JobOptions {
   jobId: string;
 }
 
-export interface JobDataFromChildReturnValues {
-  childrenReturnValues?: ChildReturnValueKeys;
-}
-
 export interface FlowOptions {
   rollbackChildrenOnFailure?: boolean;
 }
 
 export interface BullmqFlowJob<T = unknown>
   extends Omit<FlowChildJob, 'data' | 'opts'> {
-  data: Merge<T, JobDataFromChildReturnValues>;
+  data: T;
   opts: FlowChildJob['opts'] & FlowOptions & JobOptions;
 }
 

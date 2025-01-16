@@ -28,9 +28,6 @@ export class BullmqQueueOptionsProvider implements RegisterQueueOptionsFactory {
   private readonly prodMode =
     this.configService.getOrThrow<string>('NODE_ENV') === 'production';
 
-  private readonly testMode =
-    this.configService.getOrThrow<string>('NODE_ENV') === 'test';
-
   constructor(
     @Inject(BULL_QUEUES_MODULE_OPTIONS)
     private readonly options: BullmqQueuesModuleOptions,
@@ -64,7 +61,7 @@ export class BullmqQueueOptionsProvider implements RegisterQueueOptionsFactory {
     const processors: BullQueueAdvancedSeparateProcessor[] = [];
     const { registerWorkers } = this.options;
     const path = registerWorkers ? await this.workerPath() : undefined;
-    const noOfProcessors = this.testMode ? 1 : availableCPus.length;
+    const noOfProcessors = availableCPus.length;
 
     if (!path) return processors;
 
@@ -77,19 +74,23 @@ export class BullmqQueueOptionsProvider implements RegisterQueueOptionsFactory {
 
       const rateLimiterMax = get(env, 'rateLimiterMax');
       const rateLimiterDuration = get(env, 'rateLimiterDuration');
+      const concurrency = +(env.concurrency ?? 50);
+
+      const connection = this.redis.duplicate({
+        maxRetriesPerRequest: null,
+        name: `bullmq-worker-${name}-${index}`,
+        enableAutoPipelining: false,
+        connectionName: `djamo-bullmq-worker-${name}-${index}-client`,
+      });
+
+      connection.setMaxListeners(concurrency);
 
       processors.push({
         name,
         path,
         useWorkerThreads: false,
-        concurrency: +(env.concurrency ?? 50),
-        connection: this.redis.duplicate({
-          db: 7,
-          maxRetriesPerRequest: null,
-          name: `bullmq-worker-${name}-${index}`,
-          enableAutoPipelining: false,
-          connectionName: `djamo-bullmq-worker-${name}-${index}-client`,
-        }),
+        concurrency,
+        connection,
         blockingConnection: false,
         autorun: true,
         prefix: BULL_MQ_PREFIX,
@@ -120,7 +121,6 @@ export class BullmqQueueOptionsProvider implements RegisterQueueOptionsFactory {
       name: this.topic,
       blockingConnection: false,
       connection: this.redis.duplicate({
-        db: 7,
         maxRetriesPerRequest: null,
         name: `bullmq-topic-${this.topic}`,
         connectionName: `djamo-bullmq-topic-${this.topic}-client`,

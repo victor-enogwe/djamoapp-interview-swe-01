@@ -23,7 +23,6 @@ export class BullmqFlowProducerOptionsProvider
     return Promise.resolve({
       blockingConnection: false,
       connection: this.redis.duplicate({
-        db: 7,
         maxRetriesPerRequest: null,
         name: 'bullmq-flow-producer',
         enableOfflineQueue: false,
