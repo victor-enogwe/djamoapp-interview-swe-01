@@ -1,9 +1,8 @@
-import type { JobDataFromChildReturnValues } from '../../../../../../@types/bullmq.module';
 import type { TransactionStatus } from '../../../../../../enums/transaction-status.enum';
 
-export interface UpdateTransactionStatusJobData
-  extends JobDataFromChildReturnValues {
+export interface UpdateTransactionStatusJobData {
   id: string;
+  status?: TransactionStatus;
 }
 
 export interface UpdateTransactionStatusJobReturnValue {

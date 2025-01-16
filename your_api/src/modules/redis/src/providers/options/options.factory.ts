@@ -12,6 +12,7 @@ export function redisOptionsFactory(
   const port = configService.get<number>('REDIS_PORT');
   const username = configService.get<string>('REDIS_USERNAME');
   const password = configService.get<string>('REDIS_PASSWORD');
+  const db = +(configService.get<string>('REDIS_DATABASE') ?? '8');
   const sentinels = configService.get<SentinelAddress[]>('REDIS_SENTINELS');
   const env = configService.get<string>('NODE_ENV');
 
@@ -25,7 +26,7 @@ export function redisOptionsFactory(
     port,
     username,
     password,
-    db: 8,
+    db,
     sentinels,
     connectionName,
     lazyConnect: true,

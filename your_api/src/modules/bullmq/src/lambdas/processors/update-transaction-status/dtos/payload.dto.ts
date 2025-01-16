@@ -1,9 +1,14 @@
-import { IsUUID } from 'class-validator';
+import { IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { TransactionStatus } from '../../../../../../enums/transaction-status.enum';
 import type { UpdateTransactionStatusJobData } from '../types';
 
-export class ProcessTransactionPayloadDTO
-  implements Omit<UpdateTransactionStatusJobData, 'childrenReturnValues'>
+export class UpdateTransactionPayloadDTO
+  implements UpdateTransactionStatusJobData
 {
   @IsUUID(4)
   readonly id: UpdateTransactionStatusJobData['id'];
+
+  @IsEnum(TransactionStatus)
+  @IsOptional()
+  status?: TransactionStatus;
 }

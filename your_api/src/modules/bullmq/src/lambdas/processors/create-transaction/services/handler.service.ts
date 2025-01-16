@@ -1,5 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { get } from 'lodash';
+import { DataSource } from 'typeorm';
 import type { BullmqSandboxedJob } from '../../../../../../@types/bullmq.module';
+import { TransactionEntity } from '../../../../../../database/entities/transaction.entity';
 import { TransactionStatus } from '../../../../../../enums/transaction-status.enum';
 import { BullmqQueueService } from '../../../../services/bullmq-queue.service';
 import { BULLMQ_JOB } from '../../../constants';
@@ -17,6 +20,9 @@ export class HandlerService extends Handler<
   CreateTransactionJobReturnValue,
   CreateTransactionPayloadDTO
 > {
+  private readonly transactionRepository =
+    this.datasource.getRepository(TransactionEntity);
+
   constructor(
     @Inject(BULLMQ_JOB)
     job: BullmqSandboxedJob<
@@ -26,6 +32,7 @@ export class HandlerService extends Handler<
     logger: Logger,
     validator: Validator,
     queueService: BullmqQueueService,
+    private readonly datasource: DataSource,
   ) {
     super(job, logger, validator, queueService, CreateTransactionPayloadDTO);
   }
@@ -33,7 +40,27 @@ export class HandlerService extends Handler<
   override async handler(
     data: CreateTransactionPayloadDTO,
   ): Promise<CreateTransactionJobReturnValue> {
-    // get or create transaction
-    return Promise.resolve({ ...data, status: TransactionStatus.PENDING });
+    const id = data.id as unknown as number;
+
+    const transaction = await this.transactionRepository.findOneBy({ id });
+
+    if (transaction) {
+      this.logger.warn(`Transaction with id: ${id} already exists`);
+
+      return {
+        id: transaction.id as unknown as string,
+        status: transaction.status,
+      };
+    }
+
+    const newTransaction = await this.transactionRepository.insert({ id });
+
+    return Promise.resolve({
+      id: newTransaction.identifiers[0]['id'] as unknown as string,
+      status: get(
+        newTransaction,
+        'generatedMaps.0.status',
+      ) as TransactionStatus,
+    });
   }
 }

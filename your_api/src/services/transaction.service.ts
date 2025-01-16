@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JobNode } from 'bullmq';
+import { randomUUID } from 'crypto';
 import { UpdateTransactionStatusDTO } from '../dtos/update-transaction-status.dto';
 import { BullmqCreateJobService } from '../modules/bullmq/src/services/bullmq-create-job.service';
 import { BullmqProducerService } from '../modules/bullmq/src/services/bullmq-producer.service';
@@ -26,5 +27,12 @@ export class TransactionService {
     return job;
   }
 
-  async updateStatus(_data: UpdateTransactionStatusDTO): Promise<void> {}
+  async updateStatus(data: UpdateTransactionStatusDTO): Promise<void> {
+    const update = this.jobService.updateTransactionStatus(data, {
+      jobId: randomUUID(),
+      deduplication: { id: data.id },
+    });
+
+    await this.bullmqService.addFlow(update);
+  }
 }

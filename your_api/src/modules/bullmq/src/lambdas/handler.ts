@@ -3,18 +3,15 @@ import { UnrecoverableError } from 'bullmq';
 import type { BullmqQueueService } from '../../../bullmq/src/services/bullmq-queue.service';
 
 import type {
+  BullmqJob,
   BullmqSandboxedJob,
-  JobDataFromChildReturnValues,
   LambdaService,
 } from '../../../@types/bullmq.module';
 import type { Class } from '../../../@types/utils.module';
 import type { Validator } from './validator';
 
-export abstract class Handler<
-  T extends JobDataFromChildReturnValues,
-  R,
-  DTO extends object,
-> implements LambdaService<R, T>
+export abstract class Handler<T extends object, R, DTO extends object>
+  implements LambdaService<R, T>
 {
   constructor(
     protected readonly job: BullmqSandboxedJob<T, R>,
@@ -24,7 +21,7 @@ export abstract class Handler<
     protected readonly dto: Class<DTO>,
   ) {}
 
-  abstract handler(jobData: DTO): Promise<R>;
+  abstract handler(jobData: DTO, job: BullmqJob<T, R>): Promise<R>;
 
   async run(): Promise<R> {
     try {
@@ -40,7 +37,7 @@ export abstract class Handler<
 
       await this.job.updateProgress({ progress: 50 });
 
-      const result = await this.handler(data);
+      const result = await this.handler(data, job!);
 
       await this.job.updateProgress({ progress: 100 });
 
