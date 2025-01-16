@@ -117,9 +117,6 @@
   "workbench.iconTheme": "material-icon-theme",
   "terminal.explorerKind": "external",
   "terminal.integrated.env.osx": {
-    "NODE_ENV": "development",
-    "DEBUG": "",
-    "DB_NAME": "djamo",
     "TURBO_TELEMETRY_DISABLED": "1"
   }
 }
