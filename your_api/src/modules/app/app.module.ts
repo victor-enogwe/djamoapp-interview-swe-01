@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConditionalModule, ConfigModule } from '@nestjs/config';
 import { TransactionController } from '../../controllers/transaction/transaction.controller';
+import { WebhookController } from '../../controllers/webhook/webhook.controller';
 import { TransactionService } from '../../services/transaction.service';
 import { BullboardModule } from '../bullmq/src/bullboard.module';
 import { BullmqConsumerModule } from '../bullmq/src/bullmq-consumer.module';
@@ -20,7 +21,7 @@ import { RedisModule } from '../redis/src/redis.module';
       ({ NODE_ENV }) => NODE_ENV !== 'test',
     ),
   ],
-  controllers: [TransactionController],
+  controllers: [TransactionController, WebhookController],
   providers: [TransactionService],
 })
 export class AppModule {}

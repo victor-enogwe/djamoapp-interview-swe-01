@@ -1,5 +1,6 @@
 import { Global, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { APP_PIPE } from '@nestjs/core';
 import { UtilsService } from './services/utils.service';
 
 @Global()
@@ -28,6 +29,10 @@ import { UtilsService } from './services/utils.service';
           exceptionFactory: (error) => utilsService.exceptionFactory(error),
         });
       },
+    },
+    {
+      provide: APP_PIPE,
+      useExisting: ValidationPipe,
     },
   ],
   exports: [UtilsService, ValidationPipe],

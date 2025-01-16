@@ -47,3 +47,5 @@
 
 - Dead letter queue for unexpected reconciliation
 - Authenticate webhook url
+- Make server more secure
+  - set cors options

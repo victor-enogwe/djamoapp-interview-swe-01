@@ -18,7 +18,7 @@ export class TransactionController {
     @Body() { id }: CreateTransactionPayloadDTO,
     @Res() res: ReturnType<FastifyAdapter['reply']>,
   ): Promise<CreateTransactionJobReturnValue> {
-    const { job } = await this.transactionService.startTransaction(id);
+    const { job } = await this.transactionService.start(id);
 
     const returnValues = await job.getChildrenValues();
     const jobKey = `${BULL_MQ_PREFIX}:${Event.PROCESS_TRANSACTION}:${id}`;

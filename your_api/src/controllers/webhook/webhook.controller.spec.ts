@@ -4,34 +4,25 @@ import { Test } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
 import { TransactionStatus } from '../../modules/enums/transaction-status.enum';
 import { TransactionService } from '../../services/transaction.service';
-import { TransactionController } from './transaction.controller';
+import { WebhookController } from './webhook.controller';
 
 describe('Transaction Controller: ', () => {
-  let transactionController: TransactionController;
+  let transactionController: WebhookController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [TransactionController],
+      controllers: [WebhookController],
       providers: [
         {
           provide: TransactionService,
           useValue: {
-            start: jest.fn(async (id: string) =>
-              Promise.resolve({
-                job: {
-                  id,
-                  getChildrenValues: jest.fn(async () => Promise.resolve({})),
-                },
-              }),
-            ),
+            updateStatus: jest.fn(async () => Promise.resolve()),
           },
         },
       ],
     }).compile();
 
-    transactionController = app.get<TransactionController>(
-      TransactionController,
-    );
+    transactionController = app.get<WebhookController>(WebhookController);
   });
 
   describe('root', () => {
@@ -43,14 +34,12 @@ describe('Transaction Controller: ', () => {
         send: jest.fn(() => res),
       } as unknown as ReturnType<FastifyAdapter['reply']>;
 
-      const transaction = await transactionController.createTransaction(
-        { id },
-        res,
-      );
+      const transaction = await transactionController.updateTransactionStatus({
+        id,
+        status: TransactionStatus.COMPLETED,
+      });
 
-      expect(transaction).toEqual(
-        expect.objectContaining({ id, status: TransactionStatus.PENDING }),
-      );
+      expect(transaction).toBeUndefined();
     });
   });
 });

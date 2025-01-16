@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JobNode } from 'bullmq';
+import { UpdateTransactionStatusDTO } from '../dtos/update-transaction-status.dto';
 import { BullmqCreateJobService } from '../modules/bullmq/src/services/bullmq-create-job.service';
 import { BullmqProducerService } from '../modules/bullmq/src/services/bullmq-producer.service';
 
@@ -10,7 +11,7 @@ export class TransactionService {
     private readonly jobService: BullmqCreateJobService,
   ) {}
 
-  async startTransaction(id: string): Promise<JobNode> {
+  async start(id: string): Promise<JobNode> {
     const opts = { jobId: id };
 
     const create = this.jobService.createTransaction({ id }, opts);
@@ -24,4 +25,6 @@ export class TransactionService {
 
     return job;
   }
+
+  async updateStatus(_data: UpdateTransactionStatusDTO): Promise<void> {}
 }
