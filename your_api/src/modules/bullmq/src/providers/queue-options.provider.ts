@@ -25,6 +25,12 @@ import { BullmqWorkerEnvProvider } from './worker-env.provider';
 export class BullmqQueueOptionsProvider implements RegisterQueueOptionsFactory {
   readonly workerFolder = `${this.topic.replace(/_/g, '-').toLowerCase()}`;
 
+  private readonly prodMode =
+    this.configService.getOrThrow<string>('NODE_ENV') === 'production';
+
+  private readonly testMode =
+    this.configService.getOrThrow<string>('NODE_ENV') === 'test';
+
   constructor(
     @Inject(BULL_QUEUES_MODULE_OPTIONS)
     private readonly options: BullmqQueuesModuleOptions,
@@ -58,10 +64,11 @@ export class BullmqQueueOptionsProvider implements RegisterQueueOptionsFactory {
     const processors: BullQueueAdvancedSeparateProcessor[] = [];
     const { registerWorkers } = this.options;
     const path = registerWorkers ? await this.workerPath() : undefined;
+    const noOfProcessors = this.testMode ? 1 : availableCPus.length;
 
     if (!path) return processors;
 
-    for (let index = 0; index < availableCPus.length; index++) {
+    for (let index = 0; index < noOfProcessors; index++) {
       const name = `worker/${this.topic}/${index}`;
 
       const env = await this.moduleRef
@@ -94,8 +101,7 @@ export class BullmqQueueOptionsProvider implements RegisterQueueOptionsFactory {
             : undefined,
         } as RateLimiterOptions,
         workerForkOptions: {
-          detached:
-            this.configService.getOrThrow<string>('NODE_ENV') === 'production',
+          detached: this.prodMode,
           env,
           killSignal: ShutdownSignal.SIGTERM,
           serialization: 'json',

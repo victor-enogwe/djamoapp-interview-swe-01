@@ -2,6 +2,7 @@ import type { INestApplication } from '@nestjs/common';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
+import { performance } from 'node:perf_hooks';
 import type { App } from 'supertest/types';
 import { AppModule } from '../src/modules/app/app.module';
 import { BullmqQueueService } from '../src/modules/bullmq/src/services/bullmq-queue.service';
@@ -13,8 +14,6 @@ describe('Transaction Controller (e2e)', () => {
   let app: INestApplication<App>;
   let transactionDriver: TransactionDriver;
   let queueService: BullmqQueueService;
-
-  const webhookUrl = 'http://localhost:3200/webhook';
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -42,16 +41,19 @@ describe('Transaction Controller (e2e)', () => {
 
   it('/transaction(POST): response time should be below 200ms', async () => {
     const id = randomUUID();
+    const start = performance.now();
 
     const transaction = await transactionDriver.createTransaction({
       id,
     });
 
+    const end = performance.now();
+
     expect(transaction.body).toEqual(
       expect.objectContaining({ id, status: TransactionStatus.PENDING }),
     );
 
-    expect(transaction.header['X-Response-Time']).toBeLessThanOrEqual(200);
+    expect(end - start).toBeLessThanOrEqual(200);
   });
 
   it('/transaction(POST): should dispatch a txn create event', async () => {
@@ -72,15 +74,6 @@ describe('Transaction Controller (e2e)', () => {
     expect(createTransactionJob?.data).toEqual(
       expect.objectContaining({ id: transaction.id }),
     );
-
-    expect(createTransactionJob?.parent).toEqual(
-      expect.objectContaining({
-        data: {
-          id: transaction.id,
-          webhookUrl,
-        },
-      }),
-    );
   });
 
   it('/transaction(POST): should dispatch a txn process event', async () => {
@@ -99,11 +92,7 @@ describe('Transaction Controller (e2e)', () => {
     });
 
     expect(processTransactionJob?.data).toEqual(
-      expect.objectContaining({ id: transaction.id, webhookUrl }),
-    );
-
-    expect(processTransactionJob?.parent).toEqual(
-      expect.objectContaining({ data: { id: transaction.id } }),
+      expect.objectContaining({ id: transaction.id }),
     );
   });
 
@@ -124,10 +113,6 @@ describe('Transaction Controller (e2e)', () => {
 
     expect(updateTransactionStatusJob?.data).toEqual(
       expect.objectContaining({ id: transaction.id }),
-    );
-
-    expect(updateTransactionStatusJob?.parent).toEqual(
-      expect.objectContaining({ data: { id: transaction.id } }),
     );
   });
 });

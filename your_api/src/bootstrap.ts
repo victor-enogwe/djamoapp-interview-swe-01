@@ -57,7 +57,7 @@ export async function bootstrap(): Promise<NestFastifyApplication> {
     allowedHeaders: ['content-type'],
     methods: ['GET', 'POST'],
     exposedHeaders: [],
-    credentials: true,
+    credentials: false,
   });
 
   await app.register(compression, { encodings: ['gzip', 'deflate'] });

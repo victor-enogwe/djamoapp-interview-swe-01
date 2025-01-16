@@ -6,6 +6,7 @@ export class BullmqWorkerEnvProvider implements NodeJS.ProcessEnv {
   readonly NODE_ENV: NodeJS.ProcessEnv['NODE_ENV'];
   readonly TZ?: string | undefined;
   readonly REDIS_PASSWORD?: string | undefined;
+  readonly API_URL?: string | undefined;
   readonly THIRD_PARTY_API_URL?: string | undefined;
   readonly CLIENT_API_URL?: string | undefined;
   readonly concurrency: string = '1';
@@ -17,6 +18,8 @@ export class BullmqWorkerEnvProvider implements NodeJS.ProcessEnv {
     this.TZ = configService.get<NodeJS.ProcessEnv['TZ']>('TZ')!;
 
     this.REDIS_PASSWORD = configService.get<string>('REDIS_PASSWORD');
+
+    this.API_URL = configService.get<string>('YOUR_API');
 
     this.THIRD_PARTY_API_URL = configService.get<string>('THIRD_PARTY_API_URL');
 

@@ -19,6 +19,7 @@ export class HandlerService extends Handler<
   ProcessTransactionJobReturnValue,
   ProcessTransactionPayloadDTO
 > {
+  private readonly API_URL = process.env['API_URL'];
   private readonly THIRD_PARTY_API_URL = process.env['THIRD_PARTY_API_URL'];
 
   constructor(
@@ -40,6 +41,7 @@ export class HandlerService extends Handler<
   ): Promise<ProcessTransactionJobReturnValue> {
     const postUrl = `${this.THIRD_PARTY_API_URL}/transaction`;
     const getUrl = `${postUrl}/${data.id}`;
+    const webhookUrl = `${this.API_URL}/webhook`;
 
     const { data: transaction, status } = await lastValueFrom(
       this.httpService.get<Transaction | undefined>(getUrl, {
@@ -50,7 +52,7 @@ export class HandlerService extends Handler<
     if (transaction && status === 200) return transaction;
 
     const { data: newTransaction } = await lastValueFrom(
-      this.httpService.post<Transaction>(postUrl, data),
+      this.httpService.post<Transaction>(postUrl, { ...data, webhookUrl }),
     );
 
     return newTransaction;
