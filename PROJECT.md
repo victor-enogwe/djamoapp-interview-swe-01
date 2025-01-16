@@ -1,6 +1,12 @@
-# Breakdown
+# Design Summary
 
-## Your API Project Requirements
+The design will make use of the event-driven architecture with a message producer service and a consumer service. It will also allow the producer and consumer to be deployed separately, allowing them to scale as needed.
+
+The transactions are processed in worker queues, using sandboxed processes run in a separate process to allow for scale. They are also designed to be standalone, so that they can be deployed and invoked elsewhere (eg. From AWS as a [lambda](https://docs.aws.amazon.com/lambda/latest/dg/getting-started.html)).
+
+The Event-driven architecture leverages a message queue provider [Bullmq](https://github.com/taskforcesh/bullmq). The producer service is a [Fastify](https://github.com/fastify/fastify) http server which creates the jobs.
+
+## Breakdown of Your API Project Requirements
 
 - Create transaction post endpoint:
   - endpoint will accept body with transaction id(idempotent)
@@ -45,7 +51,6 @@
 
 ## Extra Considerations
 
-- Dead letter queue for unexpected reconciliation
 - Authenticate webhook url
-- Make server more secure
-  - set cors options
+- Make server more secure by adding more settings(cors, headers etc.)
+- Tests
