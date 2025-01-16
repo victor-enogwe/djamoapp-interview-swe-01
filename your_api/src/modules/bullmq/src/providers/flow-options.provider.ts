@@ -25,7 +25,6 @@ export class BullmqFlowProducerOptionsProvider
       connection: this.redis.duplicate({
         maxRetriesPerRequest: null,
         name: 'bullmq-flow-producer',
-        enableOfflineQueue: false,
         connectionName: 'djamo-bullmq-flow-producer-client',
       }),
       prefix: BULL_MQ_PREFIX,

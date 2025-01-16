@@ -18,6 +18,7 @@ import { RedisModule } from '../redis/src/redis.module';
     ConditionalModule.registerWhen(
       BullboardModule,
       ({ NODE_ENV }) => NODE_ENV !== 'test',
+      { debug: false },
     ),
   ],
   controllers: [TransactionController, WebhookController],

@@ -15,7 +15,7 @@ import { DataSource } from 'typeorm';
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.getOrThrow<string>('DB_NAME'),
-        synchronize: configService.get<boolean>('DB_SYNCHRONIZE'),
+        synchronize: configService.get<string>('DB_SYNCHRONIZE') === 'true',
         entities: [`${__dirname}/entities/*.{js,ts}`],
         migrations: [`${__dirname}/migrations/*.{ts, ts}`],
         installExtensions: true,
