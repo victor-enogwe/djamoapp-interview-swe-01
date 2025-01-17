@@ -3,7 +3,7 @@ import type { INestMicroservice } from '@nestjs/common';
 import { ShutdownSignal } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { Transport, type MicroserviceOptions } from '@nestjs/microservices';
+import { type MicroserviceOptions } from '@nestjs/microservices';
 import {
   FastifyAdapter,
   type NestFastifyApplication,
@@ -13,6 +13,7 @@ import { Logger } from 'nestjs-pino';
 import { ConsumerModule } from './modules/consumer/consumer.module';
 import { logger } from './modules/logger/providers/logger';
 import { ProducerModule } from './modules/producer/producer.module';
+import { NoopStrategy } from './modules/redis/src/classes/noop.strategy';
 
 const shutdownHooks: ShutdownSignal[] = [
   ShutdownSignal.SIGTERM,
@@ -82,8 +83,7 @@ export async function bootstrapConsumer(): Promise<INestMicroservice> {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     ConsumerModule,
     {
-      transport: Transport.REDIS,
-      options: { lazyConnect: true },
+      strategy: new NoopStrategy(),
       bufferLogs: true,
       abortOnError: false,
       logger,
