@@ -33,7 +33,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_DATABASE: ${REDIS_DATABASE}
       REDIS_SENTINEL: ${REDIS_SENTINEL}
-      DB_HOST: ${DB_HOST}
+      DB_HOST: ${DB_HOST-host.docker.internal}
       DB_PORT: ${DB_PORT}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -62,7 +62,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_DATABASE: ${REDIS_DATABASE}
       REDIS_SENTINEL: ${REDIS_SENTINEL}
-      DB_HOST: ${DB_HOST}
+      DB_HOST: ${DB_HOST-host.docker.internal}
       DB_PORT: ${DB_PORT}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
