@@ -37,8 +37,7 @@ export function redisOptionsFactory(
     enableAutoPipelining: true,
     reconnectOnError: () => !testMode,
     retryStrategy,
-    sentinelRetryStrategy: (times) =>
-      Math.max(Math.min(Math.exp(times), 20000), 1000),
+    sentinelRetryStrategy: retryStrategy,
   };
 }
 
