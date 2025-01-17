@@ -1,56 +1,59 @@
-# Design Summary
+# Djamo's take-home test for API Software Engineer candidates
 
-The design will make use of the event-driven architecture with a message producer service and a consumer service. It will also allow the producer and consumer to be deployed separately, allowing them to scale as needed.
+The goal of this test is to be a _work sample_. Instead of asking you to solve a quizz, implement fizzbuzz or a binary tree search, we would like you to work on something similar to our work. A very common task at Djamo is to integrate with third parties, and while we try to keep our services highly available, fast and reliable, unfortunately we often face issues with our partners.
 
-The transactions are processed in worker queues, using sandboxed processes run in a separate process to allow for scale. They are also designed to be standalone, so that they can be deployed and invoked elsewhere (eg. From AWS as a [lambda](https://docs.aws.amazon.com/lambda/latest/dg/getting-started.html)).
+However, it is Djamo's mission to bring the best experience to our customers. That means it is our duty to handle cleanly all of these errors, so that from a user perspective it looks like everything went fine. This test will give you a glimpse of the issues we can face with 3rd parties.
 
-The Event-driven architecture leverages a message queue provider [Bullmq](https://github.com/taskforcesh/bullmq). The producer service is a [Fastify](https://github.com/fastify/fastify) http server which creates the jobs.
+## Context
 
-## Breakdown of Your API Project Requirements
+```mermaid
+graph TD
+    Mobile -->|1. Send money| YourAPI(Your API)
+    YourAPI -->|2. Trigger transaction| 3P(3rd Party)
+    YourAPI -->|3. Send result| Mobile
+```
 
-- Create transaction post endpoint:
-  - endpoint will accept body with transaction id(idempotent)
-  - endpoint will respond with accept immediately once it creates the events below
-  - transaction creation events (with retry mechanism)
-    - dispatch event to create the transaction in the db
-    - dispatch event to create the transaction at third party.
-    - dispatch event to update transaction status locally(exponential backoff)
-    - dispatch event to update transaction status in client
-- Create Transaction in Database event handler:
-  - handler will create transaction if not exist.
-  - handler will not create duplicate if transaction exists.
-- Create Transaction in Third party event handler
-  - Handler will check third party if transaction exists(not implemented in third party code)
-  - Handler will create transaction in third party
-  - Handler will retry if 504: (check exists for transaction existing)
-  - Handler will retry creation (3) times (backoff 120s)
-  - Handler will fail creation and update transaction status locally accordingly
-- Update Transaction status locally event handler:
-  - Handler will poll third party for transaction details if:
-    - Webhook handler has not returned an update.
-    - Handler will poll third party API(because webhook may not be triggered) at:
-      - 200ms - if no status, dispatch Update Transaction status event with default status(pending)
-      - 10ms
-      - exponentially increasing time afterwards(to avoid too many requests)
-  - Handler will succeed and stop if:
-    - Cancelled by webhook endpoint
-    - If transaction status is obtained from third party.
-    - After a specified max amount of time
-- Update Transaction status in client event handler:
-  - call the client transaction endpoint to update transaction status.
-- Create webhook endpoint:
-  - endpoint will accept body with transaction id and status
-  - endpoint will complete the Update transaction status locally event.
+You're tasked to developed an API. A mobile application will call your API, and in turn you'll have to call an external service. If the transfer worked, you'll have to notify the mobile application of the success, otherwise, of the failure.
 
-## Setup Development Environment
+### 3rd party's constraints
 
-- Setup project structure
-- Setup project linters and formatters
-- Initialize api project
-- Initialize Testing
+As mentionned before, our partners have a number issues, and this one has its share:
 
-## Extra Considerations
+- it does not return immediatly if it worked, or not
+- it takes a long time to answer (up to 10s)
+- it is supposed to call you back through a webhook -- but sometimes it doesn't
+- it has a status check API -- but they explicitely said they could block our services if we request it too often
+- it will time out (HTTP 504) from time to time, but sometimes the request actually will go through after a longer time (up to 120s).
 
-- Authenticate webhook url
-- Make server more secure by adding more settings(cors, headers etc.)
-- Tests
+### Your constraints
+
+Your API is consumed by a mobile application, and the experience needs to feel pleasant for the user. So you need to:
+
+- return a response as fast as possible
+- return the success / failure of the transaction as quickly as possible
+
+Due to poor network connectivity, sometimes the mobile application will re-try to send the same request twice. You must detect it and only handle the request once.
+
+## Structure
+
+You can start the project easily by running `docker-compose up -d`. This will start a mock for the 3rd party service and for the client application. We encourage to take a look at the different READMEs to understand the global picture.
+
+```txt
+.
+├── docker-compose.yml
+├── README.md
+├── client
+│   └── README.md
+├── thirdpartymock
+│   └── README.md
+└── your_api
+    └── README.md
+```
+
+If you want to perform some tests after your docker-compose is up, you can run the following cURL:
+
+```bash
+curl -H 'Content-Type: application/json' -X POST localhost:3100/transaction
+```
+
+This will ask the client application to trigger a transaction creation. Which in turn will call your API.
