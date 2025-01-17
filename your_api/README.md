@@ -38,10 +38,14 @@ It implements the following key components:
 ```mermaid
 sequenceDiagram
     participant Client
-    participant API
-    participant Queue
-    participant Worker
     participant ThirdParty
+    participant YOUR_API
+    participant CreateTXN Queue
+    participant ProcessTXN Queue
+    participant UpdateTXN Queue
+    participant Sandboxed Processor(Create TXN)
+    participant Sandboxed Processor(Process TXN)
+    participant Sandboxed Processor(Update TXN)
 
     Client->>YOUR_API: POST /transaction
     YOUR_API-->>Client: 201 CREATED (TXN[ID, STATUS])
