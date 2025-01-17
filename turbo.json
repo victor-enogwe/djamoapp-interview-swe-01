@@ -37,6 +37,11 @@
       "outputs": ["coverage/**"],
       "dependsOn": ["^test:cov"]
     },
+    "start": {
+      "cache": false,
+      "persistent": false,
+      "dependsOn": ["^start"]
+    },
     "//#check:types:tsc": {},
     "//#check:deps:root": {}
   }
