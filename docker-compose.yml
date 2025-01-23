@@ -1,4 +1,41 @@
 services:
+  redis:
+    container_name: redisdb
+    hostname: redis
+    image: redis:latest
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD-djamo}
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  postgres:
+    container_name: postgresql
+    hostname: postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: '${DB_NAME-djamo}'
+      POSTGRES_USER: ${DB_USER-djamo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD-djamo}
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "sh -c 'pg_isready -U ${DB_USER-djamo} -d ${DB_NAME-djamo}'",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   thirdparty:
     container_name: thirdparty
     build: ./thirdpartymock
@@ -15,7 +52,7 @@ services:
     ports:
       - '3100:3100'
     environment:
-      YOUR_API: ${YOUR_API-http://host.docker.internal:3200}
+      YOUR_API: ${YOUR_API-http://your_api_producer:3200}
 
   your_api_consumer:
     container_name: your_api_consumer
@@ -24,25 +61,33 @@ services:
       dockerfile: Dockerfile.consumer
     hostname: your_api_consumer
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      thirdparty:
+        condition: service_started
+      client:
+        condition: service_started
+    volumes:
+      - node_modules_consumer:/usr/src/app/node_modules
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       TURBO_TELEMETRY_DISABLED: 1
-      REDIS_HOSTNAME: ${REDIS_HOSTNAME-host.docker.internal}
+      REDIS_HOSTNAME: ${REDIS_HOSTNAME-redis}
       REDIS_PORT: ${REDIS_PORT-6379}
-      REDIS_USERNAME: ${REDIS_USERNAME}
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      REDIS_DATABASE: ${REDIS_DATABASE}
-      REDIS_SENTINEL: ${REDIS_SENTINEL}
-      DB_HOST: ${DB_HOST-host.docker.internal}
-      DB_PORT: ${DB_PORT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_USERNAME: ${REDIS_USERNAME-default}
+      REDIS_PASSWORD: ${REDIS_PASSWORD-djamo}
+      REDIS_DATABASE: ${REDIS_DATABASE-0}
+      DB_HOST: ${DB_HOST-postgres}
+      DB_PORT: ${DB_PORT-5432}
+      DB_USER: ${DB_USER-djamo}
+      DB_PASSWORD: ${DB_PASSWORD-djamo}
       DB_NAME: ${DB_NAME-djamo}
-      DB_SYNCHRONIZE: ${DB_SYNCHRONIZE}
-      CORS_ORIGINS: ${CORS_ORIGINS-*}
-      YOUR_API: ${YOUR_API-http://host.docker.internal:3200}
-      THIRD_PARTY_API_URL: ${THIRD_PARTY_API_URL-http://host.docker.internal:3000}
-      CLIENT_API_URL: ${CLIENT_API_URL-http://host.docker.internal:3100}
+      THIRD_PARTY_API_URL: ${THIRD_PARTY_API_URL-http://thirdparty:3000}
+      CLIENT_API_URL: ${CLIENT_API_URL-http://client:3100}
+      YOUR_API: ${YOUR_API-http://your_api_producer:3200}
 
   your_api_producer:
     container_name: your_api_producer
@@ -53,22 +98,40 @@ services:
     restart: unless-stopped
     ports:
       - '3200:3200'
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      thirdparty:
+        condition: service_started
+      client:
+        condition: service_started
+      your_api_consumer:
+        condition: service_started
+    volumes:
+      - node_modules_producer:/usr/src/app/node_modules
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       TURBO_TELEMETRY_DISABLED: 1
-      REDIS_HOSTNAME: ${REDIS_HOSTNAME-host.docker.internal}
+      REDIS_HOSTNAME: ${REDIS_HOSTNAME-redis}
       REDIS_PORT: ${REDIS_PORT-6379}
-      REDIS_USERNAME: ${REDIS_USERNAME}
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      REDIS_DATABASE: ${REDIS_DATABASE}
-      REDIS_SENTINEL: ${REDIS_SENTINEL}
-      DB_HOST: ${DB_HOST-host.docker.internal}
-      DB_PORT: ${DB_PORT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_USERNAME: ${REDIS_USERNAME-default}
+      REDIS_PASSWORD: ${REDIS_PASSWORD-djamo}
+      REDIS_DATABASE: ${REDIS_DATABASE-0}
+      DB_HOST: ${DB_HOST-postgres}
+      DB_PORT: ${DB_PORT-5432}
+      DB_USER: ${DB_USER-djamo}
+      DB_PASSWORD: ${DB_PASSWORD-djamo}
       DB_NAME: ${DB_NAME-djamo}
-      DB_SYNCHRONIZE: ${DB_SYNCHRONIZE}
-      CORS_ORIGINS: ${CORS_ORIGINS-*}
-      YOUR_API: ${YOUR_API-http://host.docker.internal:3200}
-      THIRD_PARTY_API_URL: ${THIRD_PARTY_API_URL-http://host.docker.internal:3000}
-      CLIENT_API_URL: ${CLIENT_API_URL-http://host.docker.internal:3100}
+      DB_SYNCHRONIZE: ${DB_SYNCHRONIZE-true}
+      CORS_ORIGINS: ${CORS_ORIGINS-http://thirdparty:3000,http://client:3100}
+      THIRD_PARTY_API_URL: ${THIRD_PARTY_API_URL-http://thirdparty:3000}
+      CLIENT_API_URL: ${CLIENT_API_URL-http://client:3100}
+      YOUR_API: ${YOUR_API-http://your_api_producer:3200}
+
+volumes:
+  redis_data:
+  postgres_data:
+  node_modules_producer:
+  node_modules_consumer:
