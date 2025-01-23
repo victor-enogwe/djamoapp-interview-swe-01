@@ -1,7 +1,8 @@
-import { Cache, CacheModule } from '@nestjs/cache-manager';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Global, Module, OnApplicationShutdown } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Redis } from 'ioredis';
-import { get } from 'lodash';
+import { redisOptionsFactory } from './providers/options/options.factory';
 import { RedisModuleOptionsProvider } from './providers/options/options.provider';
 
 @Global()
@@ -15,9 +16,9 @@ import { RedisModuleOptionsProvider } from './providers/options/options.provider
   providers: [
     {
       provide: Redis,
-      inject: [Cache],
-      useFactory: (cache: Cache): Redis =>
-        get(cache.store, 'client') as unknown as Redis,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService): Redis =>
+        new Redis(redisOptionsFactory(configService)),
     },
   ],
   exports: [Redis],

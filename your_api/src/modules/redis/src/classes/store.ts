@@ -1,18 +1,28 @@
-import type { Config, Store } from 'cache-manager';
+import type { CacheManagerStore } from 'cache-manager';
 import type { Cluster, Redis } from 'ioredis';
 import { get } from 'lodash';
 
-export class RedisStore implements Store {
+export class RedisStore implements CacheManagerStore {
+  readonly name = 'http-cache';
+
   constructor(
     private readonly redis: Redis | Cluster,
-    private readonly options?: Config,
+    private readonly options?: { ttl?: number },
   ) {}
 
   get client(): Redis | Cluster {
     return this.redis;
   }
 
-  private isCacheable(value: unknown): boolean {
+  on?(event: string, listener: (...arguments_: unknown[]) => void): void {
+    this.redis.on(event, listener);
+  }
+
+  async disconnect(): Promise<void> {
+    return Promise.resolve(this.redis.disconnect());
+  }
+
+  isCacheable(value: unknown): boolean {
     return get(
       this.options,
       'isCacheable',
@@ -57,25 +67,27 @@ export class RedisStore implements Store {
     else await this.redis.set(key, val);
   }
 
-  async mset(args: Parameters<Store['mset']>[0], ttl?: number): Promise<void> {
+  async mset(data: Record<string, unknown>, ttl?: number): Promise<void> {
     const timeToLive = this.options?.ttl ?? ttl;
+    const records = Object.entries(data);
 
     if (timeToLive) {
       const multi = this.redis.multi();
 
-      for (const [key, value] of args) {
+      records.flatMap(([key, value]) => {
         const val = this.stringify(value);
 
         if (!this.isCacheable(value)) {
           throw new Error(`"${val}" is not a cacheable value`);
         }
+
         multi.setex(key, timeToLive / 1000, val);
-      }
+      });
 
       await multi.exec();
     } else {
       await this.redis.mset(
-        args.flatMap(([key, value]) => {
+        records.flatMap(([key, value]) => {
           const val = this.stringify(value);
 
           if (!this.isCacheable(value)) {
@@ -88,9 +100,9 @@ export class RedisStore implements Store {
     }
   }
 
-  async mget(...args: Parameters<Store['mget']>): ReturnType<Store['mget']> {
+  async mget(...keys: string[]): Promise<unknown[]> {
     return this.redis
-      .mget(...args)
+      .mget(...keys)
       .then((x) =>
         x.map((x) =>
           x === null || x === undefined
@@ -100,8 +112,8 @@ export class RedisStore implements Store {
       );
   }
 
-  async mdel(...args: Parameters<Store['del']>): ReturnType<Store['del']> {
-    await this.redis.del(...args);
+  async mdel(key: string): Promise<void> {
+    await this.redis.del(...key);
   }
 
   async del(key: string): Promise<void> {

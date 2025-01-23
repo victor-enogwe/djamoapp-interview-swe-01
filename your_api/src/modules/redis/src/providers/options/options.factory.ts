@@ -1,7 +1,7 @@
 import type { CacheModuleOptions } from '@nestjs/cache-manager';
 import type { ConfigService } from '@nestjs/config';
-import type { RedisOptions, SentinelAddress } from 'ioredis';
-import { Redis } from 'ioredis';
+import { KeyvAdapter } from 'cache-manager';
+import type { Redis, RedisOptions, SentinelAddress } from 'ioredis';
 import { RedisStore } from '../../classes/store';
 
 export function redisOptionsFactory(
@@ -42,9 +42,20 @@ export function redisOptionsFactory(
 }
 
 export async function cacheOptionsFactory(
-  configService: ConfigService<NodeJS.ProcessEnv>,
-): Promise<CacheModuleOptions<RedisOptions>> {
+  redis: Redis,
+): Promise<CacheModuleOptions> {
   return Promise.resolve({
-    store: new RedisStore(new Redis(redisOptionsFactory(configService)), {}),
+    stores: [
+      new KeyvAdapter(
+        new RedisStore(
+          redis.duplicate({
+            db: 9,
+            maxRetriesPerRequest: 3,
+            name: 'http-cache',
+            connectionName: 'djamo-http-cache-client',
+          }),
+        ),
+      ),
+    ],
   });
 }

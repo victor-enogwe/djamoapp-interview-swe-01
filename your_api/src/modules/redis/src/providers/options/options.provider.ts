@@ -1,7 +1,6 @@
 import { CacheModuleOptions } from '@nestjs/cache-manager';
 import { ConfigurableModuleOptionsFactory, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { RedisOptions } from 'ioredis';
+import Redis, { RedisOptions } from 'ioredis';
 import { cacheOptionsFactory } from './options.factory';
 
 @Injectable()
@@ -12,10 +11,10 @@ export class RedisModuleOptionsProvider
       'createCacheOptions'
     >
 {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly redis: Redis) {}
 
   async createCacheOptions(): Promise<CacheModuleOptions<RedisOptions>> {
-    const options = await cacheOptionsFactory(this.configService);
+    const options = await cacheOptionsFactory(this.redis);
 
     return options;
   }

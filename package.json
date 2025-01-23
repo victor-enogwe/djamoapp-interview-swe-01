@@ -9,8 +9,8 @@
     "check:types": "turbo run check:types --continue",
     "check:types:tsc": "tsc --noEmit",
     "dev": "turbo run dev --continue",
-    "docker:compose:down": "docker-compose -f docker-compose.yml --project-name djamo --env-file .env.local down",
-    "docker:compose:up": "docker-compose -f docker-compose.yml --project-name djamo --env-file .env.local up -d --force-recreate --build --remove-orphans",
+    "docker:compose:down": "docker-compose --project-name djamo down",
+    "docker:compose:up": "docker-compose --project-name djamo up -d --force-recreate --build --remove-orphans",
     "format": "prettier --log-level error --write --ignore-unknown --cache-location node_modules/.cache .",
     "lint": "eslint --cache --cache-location node_modules/.cache --fix .",
     "prepare": "simple-git-hooks",
@@ -45,11 +45,11 @@
     }
   },
   "engines": {
-    "node": "v20.16.0",
-    "npm": "10.5.1",
-    "pnpm": "9.15.0"
+    "node": ">=v20.16.0",
+    "npm": ">=10.5.1",
+    "pnpm": ">=9.15.0"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.15.4",
   "depcheck": {
     "ignoreBinPackage": false,
     "ignores": [
@@ -94,8 +94,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@fastify/static": "7.0.4",
-      "@fastify/view": "9.1.0"
+      "@bull-board/express": "6.7.1",
+      "@nestjs/bull-shared": "11.0.1"
     }
   }
 }
